@@ -66,7 +66,7 @@ Together, these structures create a bidirectional relationship between students 
 
 ## 👥 Team Members
 
-- Sebastián González Giraldo  
+- Sebastian Gonzalez Giraldo  
 - Juan Diego Cardona Cortes 
 - Jeronimo Quinones Rueda
 - Jesus David Pinillos
