@@ -9,8 +9,8 @@ public class main
 		Deporte deporteEncontrado = null;
 		for (int i = 0; i < registroDeportes.size; i++) {
 			Deporte deporte = registroDeportes.getAt(i);
-			if (registroDeportes.values[i].name.equalsIgnoreCase(name)) {
-				deporteEncontrado = registroDeportes.values[i];
+			if (deporte != null && deporte.name.equalsIgnoreCase(name)) {
+				deporteEncontrado = deporte;
 				break;
 			}
 		}
@@ -32,15 +32,15 @@ public class main
 		Estudiante s5 = new Estudiante(5, "Eve");
 
 		System.out.println("Asignando deportes...");
-		s1.deportesDeInteres.pushBack(new Deporte("Tenis"));
-		s2.deportesDeInteres.pushBack(new Deporte("Tenis"));
-		s3.deportesDeInteres.pushBack(new Deporte("Tenis"));
+		inscribirDeporte(s1, "Baloncesto");
+		inscribirDeporte(s2, "Baloncesto");
+		inscribirDeporte(s3, "Baloncesto");
 
-		s2.deportesDeInteres.pushBack(new Deporte("Baloncesto"));
-		s4.deportesDeInteres.pushBack(new Deporte("Baloncesto"));
+		inscribirDeporte(s2, "Tenis");
+		inscribirDeporte(s4, "Tenis");
 
-		s4.deportesDeInteres.pushBack(new Deporte("Natación"));
-		s5.deportesDeInteres.pushBack(new Deporte("Natación"));
+		inscribirDeporte(s4, "Natación");
+		inscribirDeporte(s5, "Natación");
 
 		System.out.println("Insertando estudiantes en la base de datos AVL...");
 		db.root = db.insert(db.root, s1);
