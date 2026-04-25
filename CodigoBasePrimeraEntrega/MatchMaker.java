@@ -79,24 +79,28 @@ public class MatchMaker {
                 System.out.println("Conexión encontrada: " + current.name + " practica " + TargetSport);
                 return;
             }
-            LinkedList<Referente>.Node currentRefNode = current.conexiones.head;
-            while (currentRefNode != null) {
-                Referente ref = currentRefNode.value;
-                if (!visited.contains(ref.ID)) {
-                    visited.add(ref.ID);
-                    Estudiante nextStudent = db.find(ref.ID);
-                    if (nextStudent != null) {
-                        queue.enqueue(nextStudent);
+            LinkedList<Deporte>.Node nodoDeporte = current.deportesPracticados.head;
+            while (nodoDeporte != null) {
+                Deporte d = nodoDeporte.value;
+                LinkedList<Referente>.Node nodoReferente = d.students.head;
+                while (nodoReferente != null) {
+                    Referente r = nodoReferente.value;
+                    if (!visited.contains(r.ID)) {
+                        Estudiante nextStudent = db.search(db.root, r.ID);
+                        if (nextStudent != null) {
+                            queue.enqueue(nextStudent);
+                            visited.add(nextStudent.ID);
                         }
                     }
-                    currentRefNode = currentRefNode.next;
+                    nodoReferente = nodoReferente.next;
                 }
+                nodoDeporte = nodoDeporte.next;
             }
+        }
         System.out.println("No se encontró una conexión para " + TargetSport);
     }
-        public boolean deportesPracticados(Estudiante student, String sport) {
+    public boolean deportesPracticados(Estudiante student, String sport) {
         LinkedList<Deporte>.Node currentNode = student.deportesPracticados.head;
-        
         while (currentNode != null) {
             Deporte d = currentNode.value;
             // Comparamos el nombre del deporte (d.name) con el deporte buscado
