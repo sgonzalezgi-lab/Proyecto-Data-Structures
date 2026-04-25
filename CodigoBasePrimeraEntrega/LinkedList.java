@@ -1,5 +1,5 @@
 public class LinkedList<T>{
-    class Node<T>{
+    public class Node{
         T value;
         Node next;
         
@@ -9,9 +9,9 @@ public class LinkedList<T>{
         }
     }
     
-    Node head;
+    public Node head;
     
-    LinkedList(){
+    public LinkedList(){
         head=null;
     }
     
