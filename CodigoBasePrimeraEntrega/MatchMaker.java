@@ -67,34 +67,33 @@ public class MatchMaker {
             }
             return false;
         }
-
-        public void BuscarConexion(AVLtree db, Estudiante startStudent, String TargetSport) {
-            CustomQueue queue = new CustomQueue();
-            VisitedList visited = new VisitedList();
-            queue.enqueue(startStudent);
-            visited.add(startStudent.ID);
-            while (!queue.isEmpty()) {
-                Estudiante current = queue.dequeue();
-                if (current.ID != startStudent.ID && deportesPracticados(current, TargetSport)) {
-                    System.out.println("Conexión encontrada: " + current.name + " practica " + TargetSport);
-                    return;
-                }
-                LinkedList<Referente>.Node currentRefNode = current.conexiones.head;
-                while (currentRefNode != null) {
-                    Referente ref = currentRefNode.value;
-                    if (!visited.contains(ref.ID)) {
-                        visited.add(ref.ID);
-                        Estudiante nextStudent = db.find(ref.ID);
-                        if (nextStudent != null) {
-                            queue.enqueue(nextStudent);
-                            }
-                        }
-                        currentRefNode = currentRefNode.next;
-                    }
-                }
-                System.out.println("No se encontró una conexión para " + TargetSport);
+    }
+    public void BuscarConexion(AVLtree db, Estudiante startStudent, String TargetSport) {
+        CustomQueue queue = new CustomQueue();
+        VisitedList visited = new VisitedList();
+        queue.enqueue(startStudent);
+        visited.add(startStudent.ID);
+        while (!queue.isEmpty()) {
+            Estudiante current = queue.dequeue();
+            if (current.ID != startStudent.ID && deportesPracticados(current, TargetSport)) {
+                System.out.println("Conexión encontrada: " + current.name + " practica " + TargetSport);
+                return;
             }
-        }
+            LinkedList<Referente>.Node currentRefNode = current.conexiones.head;
+            while (currentRefNode != null) {
+                Referente ref = currentRefNode.value;
+                if (!visited.contains(ref.ID)) {
+                    visited.add(ref.ID);
+                    Estudiante nextStudent = db.find(ref.ID);
+                    if (nextStudent != null) {
+                        queue.enqueue(nextStudent);
+                        }
+                    }
+                    currentRefNode = currentRefNode.next;
+                }
+            }
+        System.out.println("No se encontró una conexión para " + TargetSport);
+    }
         public boolean deportesPracticados(Estudiante student, String sport) {
         LinkedList<Deporte>.Node currentNode = student.deportesPracticados.head;
         
