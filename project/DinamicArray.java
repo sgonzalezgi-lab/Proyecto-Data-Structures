@@ -58,4 +58,9 @@ public class DinamicArray<T> {
             System.out.println("  " + i + ") " + values[i]);
         }
     }
+    public void set(int i, T value) {
+        if (i >= 0 && i < size) {
+            values[i] = value;
+        }
+    }
 }
