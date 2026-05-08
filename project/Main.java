@@ -33,6 +33,11 @@ public class Main {
 		if (selection == 1)
 		{
 			consoleLog = false;
+			System.out.println("Enter the order of magnitude n for 10^n prefilled students");
+			
+			int order = Integer.parseInt(scan.nextLine().trim());
+			prefill(order);
+			
 			do
 			{
 				diagnosticsTest();
@@ -343,8 +348,8 @@ public class Main {
 				break;
 
 			case "11":
-			    //Create a student to check against
-                system.createStudent(name, id, true);
+				//Create a student to check against
+				system.createStudent(name, id, true);
 
 				if (consoleLog) System.out.print("Student ID: ");
 				int stuId2 = id;
@@ -372,5 +377,37 @@ public class Main {
 		System.out.println("Average Execution Time: " + totalTimer/testRuns + " ns");
 
 
+	}
+
+	public static void prefill(int order)
+	{
+	    DiagnosticsFunctions diagnostics = new DiagnosticsFunctions();
+		diagnostics.initialize();
+	    
+        int totalTests = (int)Math.pow(10, order);
+        
+        for (int i = 0; i < totalTests; i++) 
+        {
+            //Create details for a random student
+			String name = diagnostics.randomNameAssign();
+			int id = diagnostics.randomIDAssign();
+
+			system.practicedSportsBuffer.clear();
+			system.interestSportsBuffer.clear();
+
+			int sportsCount = diagnostics.randomSportCount();
+
+			for (int j = 0; j < sportsCount; j++) {
+				system.practicedSportsBuffer.add(diagnostics.randomSport());
+			}
+
+			sportsCount = diagnostics.randomSportCount();
+
+			for (int j = 0; j < sportsCount; j++) {
+				system.interestSportsBuffer.add(diagnostics.randomSport());
+			}
+			
+			system.createStudent(name, id, true);
+        }
 	}
 }
