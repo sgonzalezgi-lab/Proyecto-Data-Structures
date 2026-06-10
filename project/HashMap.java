@@ -18,8 +18,8 @@ public class HashMap<K, V> {
     private int size;
     private int capacity;
 
-    private static final float LOAD_FACTOR   = 0.75f;
-    private static final int   INIT_CAPACITY = 16;
+    private final double LOAD_FACTOR   = 0.75;
+    private final int   INIT_CAPACITY = 16;
 
     HashMap() {
         capacity = INIT_CAPACITY;
@@ -34,7 +34,7 @@ public class HashMap<K, V> {
     }
 
     public void put(K key, V value) {
-        if ((float) size / capacity >= LOAD_FACTOR) {
+        if ((double) size / capacity >= LOAD_FACTOR) {
             resize();
         }
 
