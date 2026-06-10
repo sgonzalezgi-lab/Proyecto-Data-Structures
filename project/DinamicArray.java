@@ -1,3 +1,9 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.projectdatastructure;
+
 public class DinamicArray<T> {
  
     T[] values;
@@ -14,7 +20,7 @@ public class DinamicArray<T> {
         if (size >= capacity) {
             capacity *= 2;
             T[] newArray = (T[]) new Object[capacity];
-            for (int i = 0; i < size; i++) {
+            for(int i = 0; i < size; i++){
                 newArray[i] = values[i];
             }
             values = newArray;
@@ -28,7 +34,7 @@ public class DinamicArray<T> {
  
     public void delete(T value) {
         for (int i = 0; i < size; i++) {
-            if (values[i] == value) {           
+            if (values[i].equals(value)) {           
                 for (int j = i; j < size - 1; j++) {
                     values[j] = values[j + 1];
                 }
@@ -52,15 +58,19 @@ public class DinamicArray<T> {
     public int getSize() {
         return size;
     }
+    
+    public void set(int i, T value) {
+    if (i >= 0 && i < size) {
+        values[i] = value;
+        }
+    }
+    
  
     public void print() {
         for (int i = 0; i < size; i++) {
             System.out.println("  " + i + ") " + values[i]);
         }
     }
-    public void set(int i, T value) {
-        if (i >= 0 && i < size) {
-            values[i] = value;
-        }
-    }
 }
+
+
