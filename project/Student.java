@@ -1,14 +1,17 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.projectdatastructure;
+
 public class Student implements Comparable<Student> {
-    //attributes
+    
     String name;
     int ID;
- 
     
-    SinglyLinkedList<Sport> practice;
+    SinglyLinkedList<SportEntry> practice;
     SinglyLinkedList<Sport> interests;
-    DinamicArray<DobleNode<Student>> nodeRefs;
     
-    //to carry out the searching
     boolean visited;
  
  
@@ -18,28 +21,25 @@ public class Student implements Comparable<Student> {
         this.ID = ID;
         this.practice = new SinglyLinkedList<>();
         this.interests = new SinglyLinkedList<>();
-        this.nodeRefs = new DinamicArray<>();
-        this.visited = false;
-    }
- 
-    
-    Student(int ID) {
-        this.ID = ID;
-        this.practice = new SinglyLinkedList<>();
-        this.interests = new SinglyLinkedList<>();
-        this.nodeRefs = new DinamicArray<>();
         this.visited = false;
     }
  
     
     public void addPractice(Sport sport, DobleNode<Student> ref) {
-        practice.pushFront(sport);
-        nodeRefs.insert(ref);
+        SportEntry entry = new SportEntry(sport,ref);
+        practice.pushFront(entry);
     }
  
-    public void removePractice(Sport sport, DobleNode<Student> ref) {
-        practice.remove(sport);
-        nodeRefs.delete(ref);
+    public void removePractice(Sport sport) {
+        SingleNode<SportEntry> current = practice.head;
+        while (current != null) {
+            if (current.value.sport == sport) {
+                
+                practice.remove(current.value);
+                return;
+            }
+            current = current.next;
+        }
     }
  
     public void addInterest(Sport sport) {
@@ -65,11 +65,12 @@ public class Student implements Comparable<Student> {
     }
  
 
+    //is sort by id
     @Override
     public int compareTo(Student other) {
         return Integer.compare(this.ID, other.ID);
     }
- 
+    
     @Override
     public String toString() {
         return ID + ": " + name;
