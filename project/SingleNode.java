@@ -1,3 +1,5 @@
+package com.mycompany.projectdatastructure;
+
 public class SingleNode<T> {
     T value;
     SingleNode<T> next;
