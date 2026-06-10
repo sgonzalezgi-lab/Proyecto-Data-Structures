@@ -1,3 +1,9 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.projectdatastructure;
+
 public class DoublyLinkedList<T> {
  
     DobleNode<T> head;
@@ -9,7 +15,6 @@ public class DoublyLinkedList<T> {
     public boolean isEmpty() {
         return head == null;
     }
- 
     
     public DobleNode<T> pushFront(T val) {
         DobleNode<T> newNode = new DobleNode<>(val);
@@ -20,12 +25,11 @@ public class DoublyLinkedList<T> {
         head = newNode;
         return newNode;
     }
- 
     
     public DobleNode<T> find(T val) {
         DobleNode<T> temp = head;
         while (temp != null) {
-            if (temp.value == val) { 
+            if (temp.value.equals(val)) { 
                 return temp;
             }
             temp = temp.next;
