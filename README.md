@@ -1,280 +1,379 @@
 # Red Deportiva UNAL
 
-> Sistema de conexión estudiantil por deporte — Universidad Nacional de Colombia  
-> Proyecto · Estructuras de Datos
+> **Sistema de conexion estudiantil por deporte — Universidad Nacional de Colombia**  
+> Proyecto académico de Estructuras de Datos
 
 ---
 
 ## Tabla de contenido
 
-- [El problema](#-el-problema)
-- [Funcionalidades](#-funcionalidades)
-- [Arquitectura y estructuras de datos](#-arquitectura-y-estructuras-de-datos)
-- [Complejidad Big O](#-complejidad-big-o)
-- [Estructura del proyecto](#-estructura-del-proyecto)
-- [Cómo ejecutar](#-cómo-ejecutar)
-- [Ejemplo de uso](#-ejemplo-de-uso)
-- [Decisiones de diseño](#-decisiones-de-diseño)
-- [Autores](#-autores)
+- [El problema](#el-problema)
+- [Solucion implementada](#solucion-implementada)
+- [Interfaz grafica](#interfaz-grafica)
+- [Arquitectura y estructuras de datos](#arquitectura-y-estructuras-de-datos)
+- [Complejidad Big O](#complejidad-big-o)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Como ejecutar](#como-ejecutar)
+- [Ejemplo de uso](#ejemplo-de-uso)
+- [Decisiones de diseno](#decisiones-de-diseno)
+- [Autores](#autores)
 
 ---
 
 ## El problema
 
-La UNAL ofrece una amplia oferta deportiva: voleibol, rugby, taekwondo, natación, baloncesto, fútbol, entre otros. Muchos estudiantes quieren explorar nuevas disciplinas pero no saben a quién contactar.
+La Universidad Nacional de Colombia ofrece una amplia oferta deportiva: voleibol, rugby, taekwondo, natacion, baloncesto, futbol, entre otros. Muchos estudiantes desean explorar nuevas disciplinas pero no conocen a quien contactar dentro de la comunidad universitaria.
 
-La conexión puede existir de forma **indirecta**: si Ana practica voleibol y rugby, y Luis practica rugby y natación, entonces Ana puede llegar a alguien de natación a través de Luis, aunque nunca hayan hablado directamente.
+La conexion puede existir de forma **indirecta**: si Ana practica voleibol y rugby, y Luis practica rugby y natacion, entonces Ana puede llegar a alguien de natacion a traves de Luis, aunque nunca hayan interactuado directamente.
 
 ```
-Ana ──(rugby)──→ Luis ──(natación)──→ Marta
- │                                      │
- └── practica: voleibol, rugby           └── practica: natación, fútbol
+Ana --(rugby)--> Luis --(natacion)--> Marta
+ |                                      |
+ +-- practica: voleibol, rugby          +-- practica: natacion, futbol
 ```
 
-El sistema resuelve este problema de **alcanzabilidad en un grafo implícito** usando las estructuras de datos vistas hasta el momento.
+El sistema resuelve este problema de **alcanzabilidad en un grafo bipartito implicito** (estudiantes ↔ deportes) utilizando estructuras de datos implementadas desde cero.
 
 ---
 
-## ⚙️ Funcionalidades
+## Solucion implementada
 
-| # | Funcionalidad | Descripción |
-|---|---|---|
-| 1 | **Registrar estudiante** | ID, nombre, lista de deportes practicados y de interés |
-| 2 | **Eliminar estudiante** | Remoción completa del sistema en O(k·log d + log n) |
-| 3 | **Acceso por ID** | Búsqueda directa en AVL en O(log n) |
-| 4 | **Conectividad** | Determina si un estudiante está conectado directa o indirectamente con alguien que practique un deporte de interés |
-| 5 | **Comunidades deportivas** | Agrupa automáticamente a los estudiantes conectados entre sí |
-| 6 | **Ranking de deportes** | Lista los deportes ordenados por número de practicantes |
-| 7 | **Agregar/quitar deporte a estudiante** | Actualiza listas y referencias en tiempo constante |
+El sistema ofrece dos interfaces de uso:
+
+| Modo | Descripcion |
+|------|-------------|
+| **GUI Swing** | Interfaz grafica completa con tablas, grafo interactivo y panel de rendimiento |
+| **Consola** | Acceso directo a traves de la API de `SportsSystem` para integraciones |
+
+### Funcionalidades principales
+
+| # | Funcionalidad | Descripcion |
+|---|--------------|-------------|
+| 1 | **Registrar estudiante** | Nombre, ID, deportes practicados y deportes de interes |
+| 2 | **Eliminar estudiante** | Remocion completa del sistema en O(k) |
+| 3 | **Acceso por ID** | Busqueda directa en HashMap en O(1) |
+| 4 | **Conectividad (BFS)** | Determina si un estudiante esta conectado directa o indirectamente con alguien que practique un deporte de interes |
+| 5 | **Comunidades deportivas** | Agrupa automaticamente a estudiantes conectados por deportes en comun; visualizacion como grafo con fuerzas fisicas |
+| 6 | **Ranking de deportes** | Lista deportes ordenados por numero de practicantes (insertion sort) |
+| 7 | **Agregar/quitar deporte a estudiante** | Actualiza listas y referencias cruzadas en O(1) |
+| 8 | **Gestion de deportes del sistema** | Crear y eliminar deportes globales |
+| 9 | **Benchmarks de rendimiento** | Pruebas de estres con 100, 1.000 y 10.000 operaciones sobre el sistema real |
+
+---
+
+## Interfaz grafica
+
+La aplicacion cuenta con una interfaz Swing con tema oscuro que incluye cinco modulos:
+
+### Estudiantes
+Tabla completa de estudiantes registrados con busqueda por ID, registro mediante dialogo con seleccion de deportes via checkboxes, y eliminacion directa.
+
+### Deportes
+Tabla de deportes con conteo de practicantes, listado de nombres, y ordenamiento por popularidad.
+
+### Conectividad
+Verificacion visual de conexion entre un estudiante y un deporte objetivo. Muestra resultado con indicador de exito/fracaso y detalle de la cadena encontrada.
+
+### Comunidades
+**Visualizacion interactiva del grafo** de conexiones estudiante-deporte:
+- Nodos representan estudiantes
+- Aristas representan deportes en comun
+- **Simulacion de fuerzas** (repulsion Coulomb + atraccion por resorte) con amortiguamiento
+- Los nodos se agrupan por comunidad detectada via BFS, cada una con color distintivo
+- **Arrastrar nodos** con el mouse para explorar la red
+- **Tooltips** al pasar el cursor sobre un nodo (nombre, ID, deportes)
+- Leyenda de comunidades
+
+### Rendimiento
+Panel con dos componentes:
+- **Grafico de complejidad empirica**: curvas de tiempo promedio por operacion (insercion, busqueda, eliminacion, listado, BFS, comunidades) a diferentes escalas (n=10², 10³, 10⁴, 10⁵)
+- **Prueba de estres ejecutable**: benchmarks aislados sobre el sistema real con 100, 1.000 y 10.000 operaciones, mostrando tiempos totales y promedios por operacion con barras comparativas
 
 ---
 
 ## Arquitectura y estructuras de datos
 
-El sistema se basa en **dos árboles AVL** como índices principales, complementados con listas enlazadas y un arreglo de referencias cruzadas.
+### Diagrama del sistema
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    SISTEMA                              │
-│                                                         │
-│   AVL<Student>              AVL<Sport>                  │
-│   (clave: ID)               (clave: nombre)             │
-│       │                         │                       │
-│   ┌───▼───┐                 ┌───▼───┐                   │
-│   │Student│                 │ Sport │                   │
-│   │  node │                 │  node │                   │
-│   └───┬───┘                 └───┬───┘                   │
-│       │                         │                       │
-│  SLL practice ──────────────────┘ (puntero compartido)  │
-│  SLL interests                                          │
-│  DinamicArray nodeRefs[] ──→ DobleNode en DLL           │
-│  boolean visited                                        │
-│                             DLL<Student> practicers     │
-└─────────────────────────────────────────────────────────┘
++---------------------------------------------------------+
+|                    SPORTS SYSTEM                        |
+|                                                         |
+|   HashMap<Integer, Student>    HashMap<String, Sport>   |
+|   (clave: ID)                  (clave: nombre)          |
+|       |                              |                  |
+|   +---v---+                      +---v---+               |
+|   |Student|                      | Sport |               |
+|   | node  |                      | node  |               |
+|   +---|---+                      +---|---+               |
+|       |                              |                  |
+|  SLL practice -----------------------+ (puntero compartido)
+|  SLL interests                                          |
+|  SportEntry (sport + ref DLL)                           |
+|  boolean visited                                        |
+|                              DLL<Student> practicers    |
+|                              int amountStu               |
+|                              boolean visited             |
++---------------------------------------------------------+
 ```
 
-### Estructuras utilizadas
+### Grafo implicito
 
-| Estructura | Uso | Justificación |
-|---|---|---|
-| `AVL<Student>` | Índice principal de estudiantes por ID | O(log n) garantizado en peor caso. BST sin balanceo degeneraría a O(n) con IDs secuenciales |
-| `AVL<Sport>` | Índice de deportes por nombre | O(log d) por búsqueda. In-order entrega deportes en orden sin costo adicional |
-| `SinglyLinkedList<Sport>` | Deportes practicados e intereses por estudiante | Solo recorrido lineal (BFS). Inserción O(1) al frente, sin acceso aleatorio |
-| `DoublyLinkedList<Student>` | Practicantes de cada deporte | `removeByReference()` en O(1) con puntero directo. Crítico para eliminación eficiente |
-| `DinamicArray<DobleNode>` | `nodeRefs[]` — referencias cruzadas en el estudiante | Elimina búsqueda O(m) al remover: el puntero directo al nodo DLL hace la remoción O(1) |
-| `Queue<Student>` | Cola circular para BFS | Enqueue/dequeue O(1). Garantiza exploración nivel por nivel |
+El sistema modela una red social deportiva como un **grafo bipartito**:
 
-### El patrón nodeRefs[]
+- **Conjunto A (estudiantes)**: Conectados entre si indirectamente a traves de deportes compartidos
+- **Conjunto B (deportes)**: Conectan estudiantes que los practican
+- **Arista**: Relacion "practica" entre un estudiante y un deporte
 
-El puente que hace eficiente la eliminación de estudiantes:
+La conectividad se resuelve con **BFS** que alterna entre estudiantes y deportes, con flags `visited` para evitar ciclos.
+
+### Estructuras implementadas desde cero
+
+| Estructura | Uso | Justificacion |
+|------------|-----|---------------|
+| `HashMap<K, V>` | Indices principales de estudiantes (ID) y deportes (nombre) | O(1) amortizado en insercion, busqueda y eliminacion. Redimensionamiento automatico con factor de carga 0.75 |
+| `HashSet<T>` | Conjunto de IDs unicos para generacion de datos de prueba | O(1) en add, find y remove mediante encadenamiento separado |
+| `SinglyLinkedList<T>` | Deportes practicados (`practice`) e intereses (`interests`) de cada estudiante | Solo recorrido secuencial (BFS). Insercion O(1) al frente |
+| `DoublyLinkedList<T>` | Practicantes de cada deporte (`practicers`) | `removeByReference()` en O(1) con puntero directo. Critico para eliminacion eficiente |
+| `DinamicArray<T>` | Almacenamiento dinamico de comunidades, listados y datos de graficos | Redimensionamiento automatico (duplicacion). Acceso O(1) por indice |
+| `Queue<T>` | Cola circular sobre arreglo para BFS | Enqueue/dequeue O(1). Garantiza exploracion nivel por nivel. Redimensionamiento automatico |
+| `SingleNode<T>` | Nodo para SLL (valor + siguiente) | |
+| `DobleNode<T>` | Nodo para DLL (valor + anterior + siguiente) | Permite remocion O(1) por referencia |
+| `SportEntry` | Par (Sport, DobleNode) que vincula un deporte con la referencia del estudiante en la DLL de practicantes | Patron clave para eliminacion en O(k) en vez de O(k·m) |
+
+### El patron SportEntry (referencia cruzada)
+
+El mecanismo que hace eficiente la eliminacion de estudiantes:
 
 ```
 Student Ana
-├── practice SLL:  [voleibol*] → [rugby*] → null
-├── nodeRefs[]:    [ref_en_DLL_voleibol, ref_en_DLL_rugby]
-│                        │                    │
-│                        ▼                    ▼
-│            Voleibol.DLL: Luis ←→ [Ana] ←→ Marta
-│            Rugby.DLL:   Pedro ←→ [Ana] → null
-└── visited: false
++-- practice SLL: [SportEntry] --> [SportEntry] --> null
+|      |                |
+|      |                v
+|      |    Rugby.DLL: Pedro <-> [Ana] <-> Carlos
+|      |
+|      +---> SportEntry:
+|            sport = rugby
+|            studentRef = DobleNode que apunta a Ana en la DLL de rugby
+|
++-- interests SLL: [swimming] --> null
++-- visited: false
 
-// Eliminar Ana de voleibol → O(1):
-ref.prev.next = ref.next
-ref.next.prev = ref.prev
+// Eliminar Ana de rugby:
+// 1. Obtener studentRef del SportEntry de rugby -> O(k) recorriendo practice
+// 2. DLL.removeByReference(studentRef) -> O(1)
+// 3. Repetir para cada deporte que practica Ana -> O(k) total
 ```
 
-Sin `nodeRefs[]`, encontrar el nodo de Ana en cada DLL costaría O(m) por deporte.
+Sin `SportEntry` y su referencia al nodo DLL, eliminar a Ana de cada deporte requeriria buscarla en cada lista de practicantes: O(k·m) donde m es el numero de practicantes por deporte.
 
 ---
 
 ## Complejidad Big O
 
 **Variables:**
-- `n` = total de estudiantes
-- `d` = total de deportes
+- `n` = total de estudiantes registrados
+- `d` = total de deportes en el sistema
 - `k` = deportes que practica un estudiante
 - `m` = practicantes de un deporte
-- `V` = vértices del grafo (= n)
-- `E` = aristas del grafo (pares estudiante-deporte)
+- `V` = vertices del grafo bipartito (estudiantes + deportes = n + d)
+- `E` = aristas del grafo (relaciones estudiante-deporte)
 
-| Operación | Estructura | Costo | Nota |
-|---|---|---|---|
-| Insertar estudiante | AVL estudiantes | `O(log n)` | |
-| Buscar por ID | AVL estudiantes | `O(log n)` | Peor caso garantizado |
-| Eliminar estudiante | AVL + DLL + nodeRefs | `O(k·log d + log n)` | Sin nodeRefs sería O(k·m) |
-| Agregar deporte al sistema | AVL deportes | `O(log d)` | |
-| Insertar en DLL | DLL | `O(1)` | Operación dominante |
-| Remover nodo de DLL | DLL + nodeRefs | `O(1)` | Con puntero directo al nodo |
-| Listar practicantes | DLL | `O(m)` | Recorrido lineal |
-| Listar practicantes en orden | DLL + sort | `O(m log m)` | Extracción + ordenamiento |
-| Listar deportes por conteo | AVL + sort | `O(d log d)` | d es siempre pequeño |
-| BFS conectividad | Cola + flags | `O(V + E)` | **Óptimo teórico absoluto** |
-| Construir comunidades | BFS múltiple | `O(V + E)` | Cada nodo procesado una vez |
+| Operacion | Estructura | Costo | Nota |
+|-----------|-----------|-------|------|
+| Insertar estudiante | HashMap + DLL | **O(k)** | k inserciones O(1) en HashMap + k inserciones O(1) en DLL |
+| Buscar por ID | HashMap | **O(1)** amortizado | Encadenamiento separado con redimensionamiento |
+| Eliminar estudiante | HashMap + SportEntry + DLL | **O(k)** | k remociones O(1) por referencia directa + O(1) en HashMap |
+| Agregar deporte al sistema | HashMap | **O(1)** amortizado | |
+| Eliminar deporte del sistema | HashMap + SLL | **O(n·m)** | Recorre todos los practicantes y todos los estudiantes para limpiar referencias |
+| Agregar deporte a estudiante | HashMap + DLL | **O(1)** | Insercion en HashMap + DLL |
+| Quitar deporte a estudiante | SportEntry + DLL | **O(k)** para encontrar + **O(1)** para remover | Busqueda lineal en practice SLL, luego remocion O(1) por referencia |
+| Listar practicantes | DLL | **O(m)** | Recorrido lineal |
+| Listar deportes por conteo | DinamicArray + insertion sort | **O(d²)** | Insertion sort sobre arreglo de deportes |
+| BFS conectividad | Queue + flags | **O(V + E)** | Optimo teorico para busqueda en grafos no ponderados |
+| Construir comunidades | BFS multiple | **O(V + E)** | Cada nodo procesado exactamente una vez |
+| Acceso por indice | DinamicArray | **O(1)** | Arreglo subyacente |
 
 ---
 
 ## Estructura del proyecto
 
 ```
-sports/
-├── Main.java               # Menú principal e interacción con el usuario
-├── SportsSystem.java       # Lógica central del sistema y todas las operaciones
-│
-├── Student.java            # Nodo de estudiante (practice, interests, nodeRefs, visited)
-├── Sport.java              # Nodo de deporte (practicers DLL, amountStu)
-│
-├── AVL.java                # Árbol AVL genérico con insert, delete, find, isTheElement
-├── SinglyLinkedList.java   # Lista simple con find por referencia (==)
-├── DoublyLinkedList.java   # Lista doble con removeByReference() en O(1)
-├── DinamicArray.java       # Arreglo dinámico con redimensionamiento automático
-├── Queue.java              # Cola circular sobre arreglo
-│
-├── SingleNode.java         # Nodo para SLL
-└── DobleNode.java          # Nodo para DLL (prev + next)
+com.mycompany.projectdatastructure/
+|
++-- Projectdatastructure.java    # Clase principal del proyecto (NetBeans)
++-- GUI.java                     # Interfaz grafica Swing (punto de entrada)
++-- SportsSystem.java            # Logica central: todas las operaciones del sistema
++-- DiagnosticsFunctions.java    # Benchmarks de rendimiento con datos aleatorios
+|
++-- Student.java                 # Estudiante: practice, interests, visited
++-- Sport.java                   # Deporte: practicers (DLL), amountStu, visited
++-- SportEntry.java              # Par (Sport, DobleNode) para referencias cruzadas
+|
++-- HashMap.java                 # Tabla hash generica con encadenamiento separado
++-- HashSet.java                 # Conjunto hash sobre DoublyLinkedList[]
++-- SinglyLinkedList.java        # Lista simple: pushFront, find, remove, print
++-- DoublyLinkedList.java        # Lista doble: pushFront, find, remove, removeByReference
++-- DinamicArray.java            # Arreglo dinamico con redimensionamiento por duplicacion
++-- Queue.java                   # Cola circular sobre arreglo con redimensionamiento
+|
++-- SingleNode.java              # Nodo para SLL
++-- DobleNode.java               # Nodo para DLL (prev + next)
 ```
 
 ---
 
-## Cómo ejecutar
+## Como ejecutar
 
 ### Requisitos
 
 - Java Development Kit (JDK) 11 o superior
-- Terminal / línea de comandos
+- Terminal / linea de comandos
 
 ### Compilar
 
 ```bash
 # Clonar el repositorio
 git clone https://github.com/tu-usuario/red-deportiva-unal.git
-cd red-deportiva-unal/sports
+cd red-deportiva-unal
 
 # Compilar todos los archivos
-javac *.java
+javac com/mycompany/projectdatastructure/*.java
 ```
 
-### Ejecutar
+### Ejecutar (interfaz grafica)
 
 ```bash
-java Main
+java com.mycompany.projectdatastructure.GUI
 ```
 
-### Menú principal
+### Ejecutar (desde codigo)
 
-```
-======= UNAL Sports Network =======
- 1.  Registrar estudiante
- 2.  Eliminar estudiante
- 3.  Buscar estudiante por ID
- 4.  Listar estudiantes por deporte
- 5.  Listar deportes por número de practicantes
- 6.  Verificar conectividad (estudiante ↔ deporte)
- 7.  Mostrar comunidades deportivas
- 8.  Agregar nuevo deporte
- 9.  Eliminar deporte del sistema
- 10. Agregar deporte a estudiante existente
- 11. Quitar deporte a estudiante existente
- 0.  Salir
+```java
+import com.mycompany.projectdatastructure.*;
+
+public class Main {
+    public static void main(String[] args) {
+        SportsSystem sys = new SportsSystem();
+
+        // Registrar deportes
+        sys.addSport("volleyball");
+        sys.addSport("rugby");
+        sys.addSport("swimming");
+
+        // Registrar estudiante
+        sys.practicedSportsBuffer.pushFront("volleyball");
+        sys.practicedSportsBuffer.pushFront("rugby");
+        sys.interestSportsBuffer.pushFront("swimming");
+        sys.createStudent("Ana Garcia", 1001);
+        sys.clearBuffers();
+
+        // Verificar conectividad
+        boolean connected = sys.isConnected(1001, "swimming");
+        System.out.println("Conectada: " + connected);
+
+        // Obtener comunidades
+        DinamicArray<DinamicArray<Student>> communities = sys.buildCommunities();
+        System.out.println("Comunidades encontradas: " + communities.getSize());
+    }
+}
 ```
 
 ---
 
 ## Ejemplo de uso
 
+### Interfaz grafica
+
+Al ejecutar `GUI.java`, se abre una ventana con barra lateral de navegacion:
+
+1. **Registrar estudiante**: Pestaña *Estudiantes* → boton *Registrar* → completar formulario con checkboxes de deportes
+2. **Ver conectividad**: Pestaña *Conectividad* → ingresar ID y deporte → clic en *Verificar conexion*
+3. **Ver comunidades**: Pestaña *Comunidades* → clic en *Actualizar grafo* → nodos interactivos con simulacion fisica
+4. **Benchmarks**: Pestaña *Rendimiento* → seleccionar escala (100, 1.000 o 10.000 ops) → ver barras comparativas
+
+### API programatica
+
+```java
+SportsSystem sys = new SportsSystem();
+
+// --- Configurar buffers de deportes ---
+sys.practicedSportsBuffer.pushFront("rugby");
+sys.practicedSportsBuffer.pushFront("volleyball");
+sys.interestSportsBuffer.pushFront("swimming");
+
+// --- Crear estudiante ---
+sys.createStudent("Ana Garcia", 1001);
+sys.clearBuffers();
+
+// --- Crear segundo estudiante que conecta la cadena ---
+sys.practicedSportsBuffer.pushFront("rugby");
+sys.practicedSportsBuffer.pushFront("swimming");
+sys.createStudent("Luis Mora", 1002);
+sys.clearBuffers();
+
+// --- Verificar conexion: Ana -> swimming ---
+// Ana practica volleyball, rugby
+// Luis practica rugby, swimming
+// Existe cadena: Ana --rugby--> Luis --swimming--> ...
+boolean ok = sys.isConnected(1001, "swimming");
+// Resultado: true
+
+// --- Eliminar estudiante en O(k) ---
+sys.removeStudent(1001);
+// Se remueve de todos los deportes que practicaba via referencias cruzadas
+
+// --- Obtener comunidades (componentes conexas del grafo) ---
+DinamicArray<DinamicArray<Student>> coms = sys.buildCommunities();
 ```
-Opción: 1
-Nombre: Ana García
-ID: 1001
-
-Deportes disponibles:
-  volleyball
-  rugby
-  football
-  swimming
-
-¿Cuáles practica Ana? (0 para terminar)
-> volleyball
-> rugby
-> 0
-
-¿Cuáles le interesan? (0 para terminar)
-> swimming
-> 0
-
-✓ Estudiante Ana García (ID 1001) registrado.
 
 ---
 
-Opción: 6
-ID del estudiante: 1001
-Deporte a buscar: swimming
+## Decisiones de diseno
 
-Buscando conexión: Ana García → swimming
-  Ana García   practica  volleyball, rugby
-  Luis Mora    practica  rugby, swimming   ← conexión encontrada
+### Por que HashMap y no AVL o BST?
 
-✓ CONECTADO en 2 saltos.
-```
+El sistema utiliza tablas hash con encadenamiento separado en lugar de arboles de busqueda. Las operaciones dominantes son insercion, busqueda y eliminacion, todas O(1) amortizado en una tabla hash bien dimensionada. El redimensionamiento automatico (factor de carga 0.75) garantiza que el encadenamiento permanezca corto. Para los tamanos tipicos del problema (miles de estudiantes y decenas de deportes), el acceso constante supera en rendimiento al O(log n) de un arbol.
 
----
+### Por que DLL y no SLL en la lista de practicantes?
 
-## Decisiones de diseño
+La operacion `removeByReference()` de una DLL es O(1) cuando se posee un puntero directo al nodo. Con SLL seria necesario recorrer la lista para encontrar el nodo previo: O(m). Como las eliminaciones de estudiantes son una operacion frecuente, la DLL minimiza el costo acumulado total. El patrón `SportEntry` almacena esta referencia directa en el nodo de practica del estudiante.
 
-### ¿Por qué AVL y no BST?
+### Por que SLL y no arreglo dinamico para los deportes del estudiante?
 
-Con IDs asignados secuencialmente (1001, 1002, 1003...) un BST sin balanceo degenera a una lista enlazada con búsqueda O(n). El AVL garantiza O(log n) sin importar el orden de inserción.
+Las listas `practice` e `interests` solo se recorren secuencialmente durante el BFS. No requieren acceso aleatorio. La SLL ofrece insercion O(1) al frente sin el costo de redimensionamiento del arreglo dinamico.
 
-### ¿Por qué DLL y no SLL en la lista de practicantes?
+### Por que flags `visited` y no un conjunto auxiliar?
 
-La operación `removeByReference()` de una DLL es O(1) cuando se tiene un puntero directo al nodo. Con SLL sería necesario recorrer la lista para encontrar el nodo anterior: O(m). Como las inserciones y eliminaciones de estudiantes son las operaciones dominantes del sistema, la DLL minimiza el costo acumulado total.
+Un conjunto de visitados durante BFS costaria O(1) por insercion y consulta en una tabla hash, pero requeriria crear y destruir estructuras adicionales. Una bandera booleana directa en el nodo es O(1) sin overhead de memoria. El reseteo previo al BFS recorre todos los estudiantes y deportes: O(n + d), absorbido en la complejidad total O(V + E).
 
-### ¿Por qué SLL y no arreglo dinámico para los deportes del estudiante?
+### Por que Queue sobre arreglo en vez de lista enlazada?
 
-Las listas `practice` e `interests` solo se recorren linealmente durante el BFS. No hay acceso aleatorio. La SLL evita el costo de redimensionamiento y la copia de elementos del arreglo dinámico cuando crece, con inserción O(1) al frente.
+La cola circular sobre arreglo ofrece mejor localidad de cache y menor overhead de memoria (sin punteros prev/next por nodo). El redimensionamiento automatico mantiene las operaciones O(1) amortizado sin complejidad adicional.
 
-### ¿Por qué flags `visited` y no un AVL auxiliar?
+### Por que simulacion de fuerzas en el grafo de comunidades?
 
-Un AVL de visitados durante BFS costaría O(log n) por inserción y consulta. Una bandera booleana directa en el nodo es O(1). El reseteo previo al BFS cuesta O(n + d), pero ese costo está absorbido en la complejidad total O(V + E) del algoritmo.
-
-### ¿Por qué DLL sobre AVL en `practicers`, si hay que listarlos en orden?
-
-Las inserciones y eliminaciones de estudiantes son las operaciones dominantes (ocurren constantemente durante el semestre). La consulta de listado es ocasional. DLL garantiza O(1) en las operaciones dominantes, a costa de O(m log m) en el sort para listar. Con el patrón de uso real, el costo acumulado total de DLL es menor que el de AVL.
+La visualizacion del grafo emplea un algoritmo de layout por fuerzas: repulsion Coulomb entre todos los pares de nodos y atraccion por resorte entre nodos conectados por un deporte en comun. Esto produce una disposicion visual donde las comunidades (componentes conexas) emergen naturalmente como clusters espacialmente separados, facilitando la comprension de la estructura de la red deportiva.
 
 ---
 
 ## Autores
 
-- Sebastian Gonzalez Giraldo
-- Juan Diego Cardona Cortes
-- Jesus David Pinillos
-- Jeronimo Quiñones Rueda
+| Nombre | Rol |
+|--------|-----|
+| Sebastian Gonzalez Giraldo | Implementacion de estructuras de datos, logica de grafo |
+| Juan Diego Cardona Cortes | Interfaz grafica, visualizacion de comunidades, benchmarks |
+| Jesus David Pinillos | Modelo de dominio, pruebas, documentacion |
+| Jeronimo Quinones Rueda | Arquitectura del sistema, integracion, optimizacion |
 
 ---
 
 <div align="center">
 
-**Estructuras usadas:** `AVL` · `DLL` · `SLL` · `DinamicArray` · `Queue` · `BFS`
+**Estructuras implementadas desde cero:** `HashMap` · `HashSet` · `DoublyLinkedList` · `SinglyLinkedList` · `DinamicArray` · `Queue` · `BFS`
 
-**Complejidades clave:** `O(log n)` búsqueda · `O(1)` inserción/remoción · `O(V+E)` conectividad
+**Complejidades clave:** `O(1)` busqueda · `O(k)` insercion/eliminacion · `O(V+E)` conectividad y comunidades
+
+*Universidad Nacional de Colombia — 2025*
 
 </div>
