@@ -1,3 +1,9 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.projectdatastructure;
+
 public class SinglyLinkedList<T> {
  
     SingleNode<T> head;
@@ -19,7 +25,7 @@ public class SinglyLinkedList<T> {
     public SingleNode<T> find(T val) {
         SingleNode<T> temp = head;
         while (temp != null) {
-            if (temp.value == val) {
+            if (temp.value.equals(val)) {
                 return temp;
             }
             temp = temp.next;
@@ -52,5 +58,9 @@ public class SinglyLinkedList<T> {
             count++;
             temp = temp.next;
         }
+    }
+    
+    public void clear(){
+        this.head=null;
     }
 }
