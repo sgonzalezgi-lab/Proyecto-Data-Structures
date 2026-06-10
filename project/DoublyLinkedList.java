@@ -49,14 +49,14 @@ public class DoublyLinkedList<T> {
                 node.next.prev = null;
             }
         } else {
+            if(node.prev==null){
+                return;
+            }
             node.prev.next = node.next;
             if (node.next != null) {
                 node.next.prev = node.prev;
             }
         }
-        
-        node.next = null;
-        node.prev = null;
     }
  
     public void print() {
